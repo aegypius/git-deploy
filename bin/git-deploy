@@ -324,8 +324,12 @@ module Git
         self.mkdir_p(dir)
         @remote_directories[dir] = true
       end
-    
-      @ftp.put(local_file, remote_file)
+
+			unless File.symlink?(local_file)
+	      @ftp.put(local_file, remote_file)
+			else
+				puts "Uploading #{local_file} : ftp does not support symlinks."
+			end
     end
 
     def delete(remote_file)
