@@ -203,8 +203,15 @@ module Git
 
         case modifier
         when 'A', 'M', 'C'
-          puts "Uploading #{local_file}"
-          self.put(local_file, remote_file)
+          # Submodules
+          if File.directory?(local_file)
+            puts "#######################################"
+            puts " SKIPPING submodule #{local_file}"
+            puts "#######################################"
+          else
+            puts "Uploading #{local_file}"
+            self.put(local_file, remote_file)
+          end
         when 'D'
           puts "Deleting #{local_file}"
           self.delete(remote_file)
@@ -321,7 +328,7 @@ module Git
       begin
         @ftp.delete(remote_file)
       rescue Net::FTPPermError, Net::FTPReplyError => e
-        # 
+        #
       end
     end
 
@@ -370,7 +377,7 @@ module Git
     end
 
   end
-  
+
   class FTPS < Service
     def initialize(uri, options)
       super(uri, options)
@@ -390,12 +397,12 @@ module Git
       if @options['debug_mode']
         @ftps.debug_mode = true
       end
-      
+
       @ftps.binary = true
       @ftps.connect(@options['host'], @options['port'])
       @ftps.login(@options['user'], @options['password'])
-      
-      @ftps.chdir(@options['path'].empty? ? @options['chdir'] : '/' + @options['path'])    
+
+      @ftps.chdir(@options['path'].empty? ? @options['chdir'] : '/' + @options['path'])
     end
 
     def disconnect
@@ -409,7 +416,7 @@ module Git
         self.mkdir_p(dir)
         @remote_directories[dir] = true
       end
-    
+
       @ftps.put(local_file, remote_file)
     end
 
@@ -417,7 +424,7 @@ module Git
       begin
         @ftps.delete(remote_file)
       rescue Net::FTPPermError, Net::FTPReplyError => e
-         
+
       end
     end
 
@@ -482,7 +489,7 @@ module Net
       #       voidcmd("PROT P") # uncomment if you want data encypted too.
     end
   end
-  
+
 end
 
 services.each do |uri, options|
